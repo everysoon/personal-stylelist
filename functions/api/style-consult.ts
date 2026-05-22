@@ -2,6 +2,11 @@ interface Env {
   OPENAI_API_KEY: string;
 }
 
+interface OutputItem {
+  role?: string;
+  content?: Array<{ type: string; text: string }>;
+}
+
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -28,7 +33,7 @@ export async function onRequestPost({
 
     const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+    const openaiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,17 +41,13 @@ export async function onRequestPost({
       },
       body: JSON.stringify({
         model: "gpt-4o",
-        messages: [
+        input: [
           {
             role: "user",
             content: [
               {
-                type: "image_url",
-                image_url: { url: image, detail: "low" },
-              },
-              {
-                type: "text",
-                text: `당신은 10년 경력의 전문 퍼스널 스타일리스트입니다. 아래 신체 정보와 사진을 분석하여 맞춤형 스타일 컨설팅 보고서를 작성해주세요.
+                type: "input_text",
+                text: `당신은 30년 경력의 전문 퍼스널 스타일리스트입니다. 아래 신체 정보와 사진을 분석하여 맞춤형 스타일 컨설팅 보고서를 작성해주세요.
 
 신체 정보:
 - 키: ${height}cm
@@ -73,10 +74,13 @@ export async function onRequestPost({
 ## 스타일링 팁
 전반적인 스타일 완성도를 높이는 실용적인 팁을 알려주세요.`,
               },
+              {
+                type: "input_image",
+                image_url: image,
+              },
             ],
           },
         ],
-        max_tokens: 2500,
       }),
     });
 
@@ -85,10 +89,13 @@ export async function onRequestPost({
       throw new Error(err);
     }
 
-    const data = (await openaiRes.json()) as {
-      choices: { message: { content: string } }[];
-    };
-    const report = data.choices[0].message.content;
+    const data = (await openaiRes.json()) as { output: OutputItem[] };
+
+    const message = data.output.find((item) => item.role === "assistant");
+    const report =
+      message?.content?.find((c) => c.type === "output_text")?.text ?? "";
+
+    if (!report) throw new Error("응답에서 텍스트를 찾을 수 없습니다.");
 
     return Response.json({ report }, { headers: CORS });
   } catch (error) {
