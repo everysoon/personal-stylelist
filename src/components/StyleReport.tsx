@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import "./StyleReport.css";
+import HairstyleGrid, { type HairstyleItem } from "./HairstyleGrid";
 
 interface Props {
   report: string;
   photoPreview: string;
+  image: string;
   onReset: () => void;
 }
 
@@ -60,8 +63,34 @@ function SectionContent({ content }: { content: string }) {
   );
 }
 
-export default function StyleReport({ report, photoPreview, onReset }: Props) {
+type HairState =
+  | { status: "loading" }
+  | { status: "done"; items: HairstyleItem[] }
+  | { status: "error" };
+
+export default function StyleReport({ report, photoPreview, image, onReset }: Props) {
   const sections = parseSections(report);
+  const [hairState, setHairState] = useState<HairState>({ status: "loading" });
+
+  const generateHairstyles = async () => {
+    setHairState({ status: "loading" });
+    try {
+      const res = await fetch("/api/hairstyle-gen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image }),
+      });
+      if (!res.ok) throw new Error("API 오류");
+      const { hairstyles } = await res.json();
+      setHairState({ status: "done", items: hairstyles });
+    } catch {
+      setHairState({ status: "error" });
+    }
+  };
+
+  useEffect(() => {
+    generateHairstyles();
+  }, []);
 
   return (
     <div className="report-page">
@@ -70,6 +99,34 @@ export default function StyleReport({ report, photoPreview, onReset }: Props) {
         <h1 className="report-title">스타일 컨설팅 보고서</h1>
       </header>
 
+      {/* 헤어스타일 추천 — 보고서 최상단 */}
+      <div className="hair-section">
+        <div className="hair-section-header">
+          <h2 className="hair-section-title">추천 헤어스타일 9가지</h2>
+          <p className="hair-section-desc">단발·중단발·장발, 다양한 스타일을 AI가 생성해드립니다</p>
+        </div>
+
+        {hairState.status === "loading" && (
+          <div className="hair-loading">
+            <div className="loading-spinner" />
+            <p className="loading-text">헤어스타일을 생성하는 중...</p>
+            <p className="loading-sub">9가지 스타일을 AI가 만들고 있어요. 잠시만 기다려주세요</p>
+          </div>
+        )}
+
+        {hairState.status === "done" && (
+          <HairstyleGrid items={hairState.items} />
+        )}
+
+        {hairState.status === "error" && (
+          <div className="hair-error">
+            <p>헤어스타일 생성에 실패했습니다.</p>
+            <button className="hair-retry-btn" onClick={generateHairstyles}>다시 시도</button>
+          </div>
+        )}
+      </div>
+
+      {/* 스타일 컨설팅 보고서 본문 */}
       <div className="report-body">
         <aside className="report-aside">
           <img src={photoPreview} alt="프로필" className="report-photo" />

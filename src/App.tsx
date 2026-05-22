@@ -13,7 +13,7 @@ interface SubmitData {
 type AppState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "done"; report: string; photoPreview: string };
+  | { status: "done"; report: string; photoPreview: string; image: string };
 
 function App() {
   const [state, setState] = useState<AppState>({ status: "idle" });
@@ -28,7 +28,7 @@ function App() {
       });
       if (!res.ok) throw new Error("API 오류");
       const { report } = await res.json();
-      setState({ status: "done", report, photoPreview });
+      setState({ status: "done", report, photoPreview, image });
     } catch {
       setState({ status: "idle" });
       alert("오류가 발생했습니다. 다시 시도해주세요.");
@@ -50,6 +50,7 @@ function App() {
       <StyleReport
         report={state.report}
         photoPreview={state.photoPreview}
+        image={state.image}
         onReset={() => setState({ status: "idle" })}
       />
     );
