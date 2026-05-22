@@ -93,7 +93,7 @@ Rules for imagePrompt: describe only the hairstyle (cut, length, texture, color 
         const form = new FormData();
         form.append("image", new File([imageBlob], "photo.jpg", { type: mimeType }));
         form.append("prompt", makePrompt(imagePrompt));
-        form.append("model", "gpt-image-1.5");
+        form.append("model", "gpt-image-2");
         form.append("n", "1");
         form.append("size", "1024x1024");
         form.append("quality", "low");
