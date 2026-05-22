@@ -1,0 +1,168 @@
+.report-page {
+  min-height: 100vh;
+  background: #faf9f7;
+  padding: 60px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.report-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.report-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #b89f7a;
+  margin-bottom: 12px;
+}
+
+.report-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -1px;
+  margin: 0;
+}
+
+/* Body layout */
+.report-body {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Photo */
+.report-aside {
+  position: sticky;
+  top: 24px;
+}
+
+.report-photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Sections */
+.report-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.report-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+/* Content */
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-content p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+  margin: 0;
+}
+
+.section-content strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.report-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+}
+
+.bullet {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b89f7a;
+  margin-top: 8px;
+}
+
+/* Footer */
+.report-footer {
+  margin-top: 48px;
+}
+
+.reset-btn {
+  padding: 14px 40px;
+  border-radius: 12px;
+  border: 1.5px solid #1a1a1a;
+  background: transparent;
+  color: #1a1a1a;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.reset-btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .report-body {
+    grid-template-columns: 1fr;
+  }
+
+  .report-aside {
+    position: static;
+  }
+
+  .report-photo {
+    max-height: 300px;
+    aspect-ratio: auto;
+  }
+
+  .report-title {
+    font-size: 28px;
+  }
+}

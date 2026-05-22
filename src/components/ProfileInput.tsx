@@ -1,6 +1,15 @@
 import { useRef, useState } from "react";
 import "./ProfileInput.css";
 
+interface Props {
+  onSubmit: (data: {
+    image: string;
+    height: string;
+    weight: string;
+    photoPreview: string;
+  }) => void;
+}
+
 interface ProfileData {
   photo: File | null;
   photoPreview: string | null;
@@ -8,7 +17,34 @@ interface ProfileData {
   weight: string;
 }
 
-export default function ProfileInput() {
+function compressImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1024;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width > height) {
+          height = Math.round((height / width) * MAX);
+          width = MAX;
+        } else {
+          width = Math.round((width / height) * MAX);
+          height = MAX;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.src = url;
+  });
+}
+
+export default function ProfileInput({ onSubmit }: Props) {
   const [profile, setProfile] = useState<ProfileData>({
     photo: null,
     photoPreview: null,
@@ -38,9 +74,16 @@ export default function ProfileInput() {
     if (file) handleFile(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("제출된 데이터:", profile);
+    if (!profile.photo || !profile.height || !profile.weight) return;
+    const compressed = await compressImage(profile.photo);
+    onSubmit({
+      image: compressed,
+      height: profile.height,
+      weight: profile.weight,
+      photoPreview: profile.photoPreview!,
+    });
   };
 
   const isValid = profile.photo && profile.height && profile.weight;
@@ -56,7 +99,6 @@ export default function ProfileInput() {
       </header>
 
       <form className="profile-form" onSubmit={handleSubmit}>
-        {/* 사진 업로드 */}
         <section className="form-section">
           <label className="section-label">프로필 사진</label>
           <div
@@ -105,7 +147,6 @@ export default function ProfileInput() {
           </div>
         </section>
 
-        {/* 신체 정보 */}
         <section className="form-section">
           <label className="section-label">신체 정보</label>
           <div className="body-inputs">
